@@ -3,7 +3,7 @@ const int ECHO1 = 10;
 const int TRIG1 = 43;
 const int ECHO2 = 13;
 const int TRIG2 = 47;
-const int obstacleLimite = 20; // the value that help us to know if we can stop or not the robot
+const int obstacleLimite = 20; // the value that help us to know if we can stop the robot
 
 void setup() {
   Serial.begin(9600); // the serial communication
@@ -17,7 +17,8 @@ void setup() {
   // initialise TRIG pin at LOW
   digitalWrite(TRIG1, LOW);
   digitalWrite(TRIG2, LOW);
-  delay(2);
+  
+  delay(2); // shot break for showing the stability
 }
 
 long getDistance(int trigPin, int echoPin) {
@@ -40,7 +41,8 @@ void loop() {
   long distance_cm1 = getDistance(TRIG1, ECHO1);
   long distance_cm2 = getDistance(TRIG2, ECHO2);
 
-  if (distance_cm1 != 0 && distance_cm2 != 0) {
+  // check if mesures are not null
+  if (distance_cm1 != 0 && distance_cm2 != 0) { 
     if (distance_cm1 < obstacleLimite) {
       Serial.print("La distance mesuree ultrasonic 1 est : ");
       Serial.println(distance_cm1);
