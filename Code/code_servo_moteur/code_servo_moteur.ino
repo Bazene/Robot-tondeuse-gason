@@ -12,19 +12,15 @@ void setup() {
 }
 
 void loop() {
-  // Faire tourner le servo à 0 degrés
   myServo.write(0);
-  delay(1000); // Attendre 1 seconde
+  delay(3000); // Attendre 1 seconde
+  
+  myServo.write(90); // Faire tourner le servo à 90 degrés
+  delay(3000); // Attendre 1 seconde
 
-  // Faire tourner le servo à 90 degrés
-  myServo.write(90);
-  delay(1000); // Attendre 1 seconde
+  myServo.write(0);
+  delay(3000); // Attendre 1 seconde
 
-  // Faire tourner le servo à 180 degrés
-  myServo.write(180);
-  delay(1000); // Attendre 1 seconde
-
-  // Revenir à 90 degrés
-  myServo.write(90);
-  delay(1000); // Attendre 1 seconde
+  myServo.write(90); // Revenir à 90 degrés
+  delay(3000); // Attendre 1 seconde
 }
