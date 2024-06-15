@@ -102,29 +102,30 @@ void movement_control(){
   motor2.stop();
   
   if (distanceFront != 0 && distanceBack != 0) { // Ensure ultrasonic sensors are working
-    if(distanceFront > obstacleLimite) {
+    if(distanceBack > obstacleLimite) {
       // run motor with 50% speed in CW direction
-      motor1.rotate(50,CW);
-      motor2.rotate(50,CW);
+      motor1.rotate(50,CCW);
+      motor2.rotate(50,CCW);
     } else {
        // we stop motors of 1 seconde
        motor1.stop();
        motor2.stop();
-       delay(1000); 
+       delay(3000); 
 
-       motor1.rotate(70,CW); // Turn right by running motor1 faster
-       motor2.rotate(50,CW); 
+       motor1.rotate(50,CW); // Turn right by running motor1 faster
+       motor2.rotate(90,CCW); 
+       delay(3000); 
 
        motor1.stop();
        motor2.stop();
-       delay(1000); // Stop motors for 1 second
+       delay(2000); // Stop motors for 1 second
  
-       motor1.rotate(50,CW); // Resume forward movement
-       motor2.rotate(50,CW);
+       motor1.rotate(50,CCW); // Resume forward movement
+       motor2.rotate(50,CCW);
     }
 
     // If obstacle is too close at the back, stop motors for 1 second
-    if(distanceBack < obstacleLimite) {
+    if(distanceFront < obstacleLimite) {
       motor1.stop();
       motor2.stop();
       delay(1000); // Stop motors for 1 second
