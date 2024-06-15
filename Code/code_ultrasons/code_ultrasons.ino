@@ -21,30 +21,36 @@ void setup() {
 }
 
 long getDistance(int trigPin, int echoPin) {
-  // Envoi d'une impulsion TRIG de 10 microsecondes
+  // we send an impulsion TRIG of 10 microsecondes
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
   
-  // Mesure de la durée de l'impulsion ECHO
+  // We Mesure the length of ECHO impulsion
   long duration = pulseIn(echoPin, HIGH);
   
-  // Calcul de la distance en cm
+  // Calcul of distance in cm
   long distance = duration / 58.2;
   
   return distance;
 }
 
 void loop() {
-  // Calcul de la distance pour chaque capteur
+  // Calcul of distance for each sensor
   long distance_cm1 = getDistance(TRIG1, ECHO1);
   long distance_cm2 = getDistance(TRIG2, ECHO2);
-  
-  if (distance_cm2 < obstacleLimite) {
-    Serial.println("Le moteur tourne");
-  } else {
-    Serial.println("Le moteur ne tourne pas");
+
+  if (distance_cm1 != 0 && distance_cm2 != 0) {
+    if (distance_cm1 < obstacleLimite) {
+      Serial.print("La distance mesuree ultrasonic 1 est : ");
+      Serial.println(distance_cm1);
+    } 
+    
+    if (distance_cm2 < obstacleLimite) {
+      Serial.print("La distance mesuree ultrasonic 2 est : ");
+      Serial.println(distance_cm2);
+    }
   }
   
-  delay(1000); // Attendre 1 seconde avant de refaire une mesure
+  delay(1000); // wait for 1 seconde before making the mesure
 }
