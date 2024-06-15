@@ -11,13 +11,6 @@ const int IN3 = 35;
 const int IN4 = 39;
 const int ENB = 7;
 
-// Define broche for ultrasonics sensors
-const int ECHO1 = 10;
-const int ECHO2 = 13;
-const int TRIG1 = 43;
-const int TRIG2 = 47;
-const int obstacleLimite = 40;
-
 void setup() {
   Serial.begin(9600); //lancer la communication serie à 9600bps
   
@@ -25,63 +18,34 @@ void setup() {
 
   // motor 1
   pinMode(IN1, OUTPUT); digitalWrite(IN1, LOW); // for direct sens
-  pinMode(IN2, OUTPUT); digitalWrite(IN2, HIGH); // for indirect sens
-  pinMode(ENA, OUTPUT);
+  pinMode(IN2, OUTPUT); digitalWrite(IN2, LOW); // for indirect sens
+  pinMode(ENA, OUTPUT); analogWrite(ENA, 0);
 
   // motor 2
-  pinMode(IN3, OUTPUT); digitalWrite(IN3, HIGH); // for direct sens
+  pinMode(IN3, OUTPUT); digitalWrite(IN3, LOW); // for direct sens
   pinMode(IN4, OUTPUT); digitalWrite(IN4, LOW); // for indirect sens
-  pinMode(ENB, OUTPUT);
+  pinMode(ENB, OUTPUT); analogWrite(ENB, 0);  
 
   // motor tonte
   pinMode(MotTonte, OUTPUT); analogWrite(MotTonte, 0);
-
-  // ultrasonics
-  pinMode(ECHO1, INPUT); pinMode(ECHO2, INPUT);
-  pinMode(TRIG1, OUTPUT); digitalWrite(TRIG1, HIGH); 
-  pinMode(TRIG2, OUTPUT); digitalWrite(TRIG2, HIGH);
 }
 
 void loop() {
-  // Activation de la modulation de largeur d'impulsion (PWM) pour ENA et ENB
-//  analogWrite(ENA, ((dutyCycle * 255) / 100));  // Convertit le pourcentage en valeur entre 0 et 255
-//  analogWrite(ENB, ((dutyCycle * 255) / 100));
-    
-  analogWrite(ENA, 255);  // Convertit le pourcentage en valeur entre 0 et 255
-  analogWrite(ENB, 255);
-
-  // calcul of distance 
-  long duration = pulseIn(ECHO1, HIGH); // duration of impulsion in microseconds
-  int distance_cm = duration * 0.034/2;
-  
-  if(distance_cm < obstacleLimite) {
-    analogWrite(MotTonte, 255);
-  } else {
-    analogWrite(MotTonte, 0);
-  }
-
   //verifier si les données sont disponibles sur le port série ici du bluetooth
   if (Serial.available() > 0) {
     //gestion moteur tonte 
     String receveidData = Serial.readStringUntil('\n'); // Lire la chaîne jusqu'au retour à la ligne
 
-
-    // **************************** FOR TONTE MOTOR ************************************
-    if(receveidData == "turn on mt"){
-      analogWrite(MotTonte, 255);
-    }
-
-    if(receveidData == "turn off mt") {
-      analogWrite(MotTonte, LOW);
-    }
-
-    // **************************** FOR LAUNCHING BACK MOTORS ************************************
+    // ******************** FOR LAUNCHING BACK MOTORS OR FOR BEFORE MOVEMENT ***********************
     if(receveidData == "turn on m arriere") {
       digitalWrite(IN1, LOW); // for direct sens
       digitalWrite(IN2, HIGH); // for indirect sens
-
+  
       digitalWrite(IN3, LOW); // for direct sens
       digitalWrite(IN4, HIGH); // for indirect sens
+
+      analogWrite(ENA, 127);  // Convertit le pourcentage en valeur entre 0 et 255
+      analogWrite(ENB, 127);
     }
 
     if(receveidData == "turn off m arriere") {
@@ -90,11 +54,54 @@ void loop() {
 
       digitalWrite(IN3, LOW); // for direct sens
       digitalWrite(IN4, LOW); // for indirect sens
+
+      analogWrite(ENA, 0);  // Convertit le pourcentage en valeur entre 0 et 255
+      analogWrite(ENB, 0);
     }
 
-    // **************************** MOVEMENT LEFT **************************************
-    // **************************** MOVEMENT RIGHT *************************************
-    // **************************** MOVEMENT BEFORE ************************************
-    // **************************** MOVEMENT BACK **************************************
+     // **************************** LEFT MOVEMENT *************************************
+     if(receveidData == "left movement") {
+      digitalWrite(IN1, HIGH); // for direct sens
+      digitalWrite(IN2, LOW); // for indirect sens
+
+      digitalWrite(IN3, HIGH); // for direct sens
+      digitalWrite(IN4, LOW); // for indirect sens
+
+      analogWrite(ENA, 127);  // Convertit le pourcentage en valeur entre 0 et 255
+      analogWrite(ENB, 179);
+    }
+
+    // **************************** RIGHT MOVEMENT *************************************
+     if(receveidData == "right movement") {
+      digitalWrite(IN1, HIGH); // for direct sens
+      digitalWrite(IN2, LOW); // for indirect sens
+
+      digitalWrite(IN3, HIGH); // for direct sens
+      digitalWrite(IN4, LOW); // for indirect sens
+
+      analogWrite(ENA, 179);  // Convertit le pourcentage en valeur entre 0 et 255
+      analogWrite(ENB, 127);
+    }
+    
+    // **************************** BACK MOVEMENT **************************************
+     if(receveidData == "back movement") {
+      digitalWrite(IN1, HIGH); // for direct sens
+      digitalWrite(IN2, LOW); // for indirect sens
+  
+      digitalWrite(IN3, HIGH); // for direct sens
+      digitalWrite(IN4, LOW); // for indirect sens
+  
+      analogWrite(ENA, 127);  // Convertit le pourcentage en valeur entre 0 et 255
+      analogWrite(ENB, 127);
+    }
+    
+    // **************************** FOR TONTE MOTOR ************************************
+    if(receveidData == "turn on mt") {
+      analogWrite(MotTonte, 255);
+    }
+
+    if(receveidData == "turn off mt") {
+      analogWrite(MotTonte, 0);
+    }
   }
  }
