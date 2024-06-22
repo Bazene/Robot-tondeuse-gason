@@ -272,9 +272,9 @@ void automatical_control() {
       } else if(!last_movement && (value_bobine_left > 300)) {
           turn_right();  //we turn right
           movement_front(); // then front
-      } else {
-        movement_for_front_obstacle(); 
       }
+      
+      movement_for_front_obstacle(); 
     }
     
     if(distanceBack < obstacleLimite) {
@@ -290,15 +290,14 @@ void loop() {
     String data = Serial.readStringUntil('\n');
     if(data == "mode manuel") {
       robotMode = false;
-    } else {
-      receveidData = data;
     }
-  }
-    
-  if(robotMode) {
+    if(!robotMode) {
+      delay(3000);
+      manuel_control(data); // the default mode
+    }
+  // receveidData = data;  
+  } else if(robotMode) {
     automatical_control();
-  } else {
-    manuel_control(receveidData); // the default mode
   }
     
   delay(2000); // reproduice the same processusse after 2 seconds 
