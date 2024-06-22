@@ -83,5 +83,5 @@ void loop() {
         motorRunningArriere = false;
       }
     }
-  delay(2000);// stop for 3 seconds 
+  delay(2000);// stop for 2 seconds 
 }

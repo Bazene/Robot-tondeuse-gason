@@ -39,6 +39,7 @@ RobojaxBTS7960 motor1(R_EN_1,RPWM_1,R_IS_1, L_EN_1,LPWM_1,L_IS_1,debug); //defin
 RobojaxBTS7960 motor2(R_EN_2,RPWM_2,R_IS_2, L_EN_2,LPWM_2,L_IS_2,debug); //define motor 2 object (second instance of RobojaxBTS7960)
 
 bool motorRunningArriere = false; // State of motors
+bool robotMode = false; // state of robot mode (Automatique or manuel)
 
 //********************************************************* TONTE MOTOR *********************************************************
 //const int Mt_tonte = 10;
@@ -146,8 +147,38 @@ void movement_front() {
 
 //**************************************** FUNCTION TO CONTROL THE ROBOT'S MOVEMENT MANUELLY **************************************************
 void manuel_control() {
-  if(Serial.available) {
+  if(Serial.available() > 0) {
+    String receveidData = Serial.readStringUntil('\n');
+
+    if(receveidData == "turn on m arriere") {
+       motor1.rotate(50,CW);
+       motor2.rotate(50,CW); 
+    }
+
+    if(receveidData == "turn off m arriere") {
+       motor1.stop();
+       motor2.stop();
+    }
+
+    if(receveidData == "turn left") {
+      turn_left(); // we call the specific function for this task
+    }
     
+    if(receveidData == "turn right") {
+      turn_right(); // we call the specific function for this task
+    }
+
+    if(receveidData == "going front") {
+      movement_front(); // we call the specific function for this task
+    }
+
+    if(receveidData == "going back") {
+      movement_back(); // we call the specific function for this task
+    }
+
+    if(receveidData == "change mode") {
+       robotMode = !robotMode;
+    }
   }
 }
 
@@ -157,9 +188,10 @@ void automatical_control(){
   long distanceFront = getDistance(TRIG1, ECHO1);
   long distanceBack = getDistance(TRIG2, ECHO2);
 
-  // default state of our motors
+  // default state of our motors in 5 secondes
   motor1.stop();
   motor2.stop();
+  delay(5000);
   
   if (distanceFront != 0 && distanceBack != 0) { // Ensure ultrasonic sensors are working
     if(distanceBack > obstacleLimite) {
@@ -196,7 +228,12 @@ void automatical_control(){
 
 //*********************************************************** LOOP FUNCTION *******************************************************************
 void loop() { 
-  automatical_control();
+  
+  if(robotMode) {
+    automatical_control();  
+  } else {
+    manuel_control(); // the default mode
+  }
     
   delay(2000); // reproduice the same processusse after 2 seconds 
 }
