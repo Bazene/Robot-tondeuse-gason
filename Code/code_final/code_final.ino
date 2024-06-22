@@ -40,10 +40,10 @@ RobojaxBTS7960 motor2(R_EN_2,RPWM_2,R_IS_2, L_EN_2,LPWM_2,L_IS_2,debug); //defin
 
 bool motorRunningArriere = false; // State of motors
 
-//************************************************************ TONTE MOTOR **********************************************************************
+//********************************************************* TONTE MOTOR *********************************************************
 //const int Mt_tonte = 10;
 
-//********************************************************* ULRASONIC SENSORS *******************************************************************
+//****************************************************** ULRASONIC SENSORS ******************************************************
 // for front ultrasonic
 const int ECHO1 = 10;
 const int TRIG1 = 43;
@@ -54,7 +54,7 @@ const int TRIG2 = 47;
 
 const int obstacleLimite = 30; // the distance that help us to know if we can stop the robot (30cm because this will help us turn right or left without move back)
 
-//*********************************************************** SETUP FUNCTION *******************************************************************
+//************************************************* INITIALISE FUNCTION **********************************************************
 void setup() {
   Serial.begin(9600); // setup Serial Monitor to display information
 
@@ -91,8 +91,68 @@ long getDistance(int trigPin, int echoPin) {
   return distance;
 }
 
+//*************************************************************** BASE FUNCTIONS ***************************************************************
+void turn_left() {
+  // we take 3 secondes of break, before moving left
+  motor1.stop();
+  motor2.stop();
+  delay(3000);
+
+  // we turn left in 3 secondes(This value must be confirmed in test)
+  motor1.rotate(90,CW);
+  motor2.rotate(50,CCW);
+  delay(3000);
+
+  // then stopp motors
+  motor1.stop();
+  motor2.stop();
+}
+
+void turn_right() {
+  // we take 3 secondes of break, before moving right
+  motor1.stop();
+  motor2.stop();
+  delay(3000);
+
+  // we turn right in 3 secondes (This value must be confirmed in test)
+  motor1.rotate(50,CW);
+  motor2.rotate(90,CCW);
+  delay(3000);
+
+  // then stopp motors
+  motor1.stop();
+  motor2.stop();
+}
+
+void movement_back() {
+  // we take 3 secondes of break, before moving back
+  motor1.stop();
+  motor2.stop();
+  delay(3000);
+  
+  motor1.rotate(50,CCW);
+  motor2.rotate(50,CCW);
+}
+
+void movement_front() {
+  // we take 3 seondes of break, before moving fornt
+  motor1.stop();
+  motor2.stop();
+  delay(3000);
+  
+  motor1.rotate(50,CW);
+  motor2.rotate(50,CW);
+}
+
+//**************************************** FUNCTION TO CONTROL THE ROBOT'S MOVEMENT MANUELLY **************************************************
+void manuel_control() {
+  if(Serial.available) {
+    
+  }
+}
+
 //************************************* FUNCTION TO CONTROL THE ROBOT'S MOVEMENT AUTOMATICALLY ************************************************
-void movement_control(){
+void automatical_control(){
   // Calcul of distance for each sensor
   long distanceFront = getDistance(TRIG1, ECHO1);
   long distanceBack = getDistance(TRIG2, ECHO2);
@@ -136,7 +196,7 @@ void movement_control(){
 
 //*********************************************************** LOOP FUNCTION *******************************************************************
 void loop() { 
-  movement_control();
+  automatical_control();
     
   delay(2000); // reproduice the same processusse after 2 seconds 
 }
