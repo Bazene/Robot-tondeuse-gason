@@ -42,7 +42,7 @@ bool motorRunningArriere = false; // State of motors
 bool robotMode = false; // state of robot mode (Automatique or manuel)
 
 //********************************************************* TONTE MOTOR *********************************************************
-//const int Mt_tonte = 10;
+const int mt_tonte = 8;
 
 //****************************************************** ULRASONIC SENSORS ******************************************************
 // for front ultrasonic
@@ -72,6 +72,10 @@ void setup() {
   // set default values for ultrasonic sensors
   digitalWrite(TRIG1, LOW);
   digitalWrite(TRIG2, LOW);
+
+  // Initialize motor tonte
+  pinMode(mt_tonte, OUTPUT); 
+  analogWrite(mt_tonte, 0);
 
   delay(2); // shot delay for stability
 }
@@ -150,6 +154,16 @@ void manuel_control() {
   if(Serial.available() > 0) {
     String receveidData = Serial.readStringUntil('\n');
 
+    // for tonte motor
+     if(receveidData == "turn on mt_tonte") {
+      analogWrite(mt_tonte, 255);
+    }
+
+    if(receveidData == "turn off mt_tonte") {
+      analogWrite(mt_tonte, 0);
+    }
+
+    // for back motors
     if(receveidData == "turn on m arriere") {
        motor1.rotate(50,CW);
        motor2.rotate(50,CW); 
