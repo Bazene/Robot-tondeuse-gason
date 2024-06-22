@@ -38,8 +38,9 @@ const int debug = 0; //change to 0 to hide serial monitor debugging infornmation
 RobojaxBTS7960 motor1(R_EN_1,RPWM_1,R_IS_1, L_EN_1,LPWM_1,L_IS_1,debug); //define motor 1 object (first instance of RobojaxBTS7960)
 RobojaxBTS7960 motor2(R_EN_2,RPWM_2,R_IS_2, L_EN_2,LPWM_2,L_IS_2,debug); //define motor 2 object (second instance of RobojaxBTS7960)
 
-bool motorRunningArriere = false; // State of motors
+bool last_movement = true; // State of movement true = Droite
 bool robotMode = false; // state of robot mode (Automatique or manuel)
+String receveidData ;
 
 // TONTE MOTOR
 const int mt_tonte = 8;
@@ -108,12 +109,13 @@ long getDistance(int trigPin, int echoPin) {
 
 //*************************************************************** BASE FUNCTIONS ***************************************************************
 void turn_left() {
-  // we take 3 secondes of break, before moving left
+  // we take 1 secondes of break, before moving left
   motor1.stop();
   motor2.stop();
-  delay(3000);
+  delay(1000);
 
   // we turn left in 3 secondes(This value must be confirmed in test)
+  last_movement = false;
   motor1.rotate(50,CCW);
   motor2.rotate(90,CW);
   delay(3000);
@@ -127,9 +129,10 @@ void turn_right() {
   // we take 3 secondes of break, before moving right
   motor1.stop();
   motor2.stop();
-  delay(3000);
+  delay(1000);
 
   // we turn right in 3 secondes (This value must be confirmed in test)
+  last_movement = true;
   motor1.rotate(90,CW);
   motor2.rotate(50,CCW);
   delay(3000);
@@ -140,138 +143,162 @@ void turn_right() {
 }
 
 void movement_back() {
-  // we take 3 secondes of break, before moving back
+  // we take 1 secondes of break, before moving back
   motor1.stop();
   motor2.stop();
-  delay(3000);
+  delay(1000);
   
   motor1.rotate(50,CCW);
   motor2.rotate(50,CCW);
 }
 
 void movement_front() {
-  // we take 3 seondes of break, before moving fornt
+  // we take 1 seondes of break, before moving fornt
   motor1.stop();
   motor2.stop();
-  delay(3000);
+  delay(1000);
   
   motor1.rotate(50,CW);
   motor2.rotate(50,CW);
 }
 
 //**************************************** FUNCTION TO CONTROL THE ROBOT'S MOVEMENT MANUELLY **************************************************
-void manuel_control() {
-  if(Serial.available() > 0) {
-    String receveidData = Serial.readStringUntil('\n');
-
+void manuel_control(String newData) {
     // for tonte motor
-     if(receveidData == "turn on mt_tonte") {
+    if(newData == "turn on mt_tonte") {
       analogWrite(mt_tonte, 255);
     }
 
-    if(receveidData == "turn off mt_tonte") {
+    if(newData == "turn off mt_tonte") {
       analogWrite(mt_tonte, 0);
     }
 
     // for back motors
-    if(receveidData == "turn on m arriere") {
+    if(newData == "turn on m arriere") {
        motor1.rotate(50,CW);
        motor2.rotate(50,CW); 
     }
 
-    if(receveidData == "turn off m arriere") {
+    if(newData == "turn off m arriere") {
        motor1.stop();
        motor2.stop();
     }
 
-    if(receveidData == "turn left") {
+    if(newData == "turn left") {
       turn_left(); // we call the specific function for this task
     }
     
-    if(receveidData == "turn right") {
+    if(newData == "turn right") {
       turn_right(); // we call the specific function for this task
     }
 
-    if(receveidData == "going front") {
+    if(newData == "going front") {
       movement_front(); // we call the specific function for this task
     }
 
-    if(receveidData == "going back") {
+    if(newData == "going back") {
       movement_back(); // we call the specific function for this task
     }
 
     // For changing the robot mode
-    if(receveidData == "automatical mode") {
+    if(newData == "automatical mode") {
        robotMode = true;
     }
-
-    if(receveidData == "manuel mode") {
-       robotMode = false;
-    }
-  }
 }
 
 //************************************* FUNCTION TO CONTROL THE ROBOT'S MOVEMENT AUTOMATICALLY ***********************************************
+void movement_autLeft() {
+  if(value_bobine_left > 300) {
+    turn_right();  //we turn right
+    movement_front(); // then front
+  }
+}
 
-void automatical_control(){
-  // Calcul of distance for each sensor
-  long distanceFront = getDistance(TRIG1, ECHO1);
-  long distanceBack = getDistance(TRIG2, ECHO2);
+void movement_autRight() {
+  if(value_bobine_right > 300) {
+    turn_left(); //we turn left
+    movement_front(); // then front
+  }
+}
 
+void movement_for_front_obstacle() {
+  if(last_movement) {
+    turn_right();  //we turn right
+    movement_front(); // then front
+  } else {
+    turn_left(); //we turn left
+    movement_front(); // then front
+  }
+}
+
+void normal_automatical_movement() {
   // take limits values
   value_bobine_left = analogRead(bobine_left);
   value_bobine_right = analogRead(bobine_right);
 
-  //valueRead > 300
+  if((value_bobine_left <= 300) && (value_bobine_right <= 300)) {
+    motor1.rotate(50,CW);
+    motor2.rotate(50,CW);
+  }
   
-  // default state of our motors in 5 secondes
-  motor1.stop();
-  motor2.stop();
-  delay(5000);
+  if((value_bobine_left > 300) && (value_bobine_right > 300)){
+    // we turn back in 2 secondes
+    movement_back();
+    delay(2000);
+    
+    turn_left();  //we turn left
+    movement_front(); // then front
+  }
+
+  movement_autLeft();
+  movement_autRight();
+}
+
+void automatical_control() {
+  // Calcul of distance for each sensor
+  long distanceFront = getDistance(TRIG1, ECHO1);
+  long distanceBack = getDistance(TRIG2, ECHO2);  
   
-  if (distanceFront != 0 && distanceBack != 0) { // Ensure ultrasonic sensors are working
-    if(distanceBack > obstacleLimite) {
-       motor1.stop();
-       motor2.stop();
-       delay(3000); 
-       
-      // run motor with 50% speed in CW direction
-      motor1.rotate(50,CW);
-      motor2.rotate(50,CW);
-    } else {
-       // we stop motors of 1 seconde
-       motor1.stop();
-       motor2.stop();
-       delay(3000); 
-
-       motor1.rotate(90,CW); // Turn right by running motor1 faster
-       motor2.rotate(50,CCW); 
-       delay(3000); 
-
-       motor1.stop();
-       motor2.stop();
-       delay(2000); // Stop motors for 1 second
- 
-       motor1.rotate(50,CW); // Resume forward movement
-       motor2.rotate(50,CW);
-    }
-
-    // If obstacle is too close at the back, stop motors for 1 second
+  if(distanceFront != 0 && distanceBack != 0) { // Ensure ultrasonic sensors are working
+    
+    if((distanceBack > obstacleLimite) && (distanceFront > obstacleLimite)) {
+      normal_automatical_movement();
+    } 
+    
     if(distanceFront < obstacleLimite) {
+      if(last_movement && (value_bobine_right > 300)) {
+          turn_left(); //we turn left
+          movement_front(); // then front
+      } else if(!last_movement && (value_bobine_left > 300)) {
+          turn_right();  //we turn right
+          movement_front(); // then front
+      } else {
+        movement_for_front_obstacle(); 
+      }
+    }
+    
+    if(distanceBack < obstacleLimite) {
       motor1.stop();
       motor2.stop();
     }
   }
 }
 
-
 //*********************************************************** LOOP FUNCTION *******************************************************************
 void loop() { 
-  
+  if(Serial.available() > 0) {
+    String data = Serial.readStringUntil('\n');
+    if(data == "mode manuel") {
+      robotMode = false;
+    } else {
+      receveidData = data;
+    }
+  }
+    
   if(robotMode) {
-    automatical_control();  
+    automatical_control();
   } else {
-    manuel_control(); // the default mode
+    manuel_control(receveidData); // the default mode
   }
     
   delay(2000); // reproduice the same processusse after 2 seconds 
