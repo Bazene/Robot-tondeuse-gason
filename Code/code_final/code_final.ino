@@ -41,6 +41,7 @@ RobojaxBTS7960 motor2(R_EN_2,RPWM_2,R_IS_2, L_EN_2,LPWM_2,L_IS_2,debug); //defin
 bool last_movement = true; // State of movement true = Droite
 bool robotMode = false; // state of robot mode (Automatique or manuel)
 String receveidData ;
+bool mode_manuel_active = false;
 
 // TONTE MOTOR
 const int mt_tonte = 8;
@@ -116,8 +117,8 @@ void turn_left() {
 
   // we turn left in 3 secondes(This value must be confirmed in test)
   last_movement = false;
-  motor1.rotate(50,CCW);
-  motor2.rotate(90,CW);
+  motor1.rotate(40,CCW);
+  motor2.rotate(80,CW);
   delay(3000);
 
   // then stopp motors
@@ -133,8 +134,8 @@ void turn_right() {
 
   // we turn right in 3 secondes (This value must be confirmed in test)
   last_movement = true;
-  motor1.rotate(90,CW);
-  motor2.rotate(50,CCW);
+  motor1.rotate(80,CW);
+  motor2.rotate(40,CCW);
   delay(3000);
 
   // then stopp motors
@@ -258,6 +259,7 @@ void automatical_control() {
   // Calcul of distance for each sensor
   long distanceFront = getDistance(TRIG1, ECHO1);
   long distanceBack = getDistance(TRIG2, ECHO2);  
+  analogWrite(mt_tonte, 255);
   
   if(distanceFront != 0 && distanceBack != 0) { // Ensure ultrasonic sensors are working
     
@@ -290,9 +292,17 @@ void loop() {
     String data = Serial.readStringUntil('\n');
     if(data == "mode manuel") {
       robotMode = false;
+      mode_manuel_active = true;
     }
     if(!robotMode) {
-      delay(3000);
+      if(mode_manuel_active) {
+         motor1.stop();
+         motor2.stop();
+         analogWrite(mt_tonte, 0);
+         delay(2000);
+         mode_manuel_active = false;
+      }
+      
       manuel_control(data); // the default mode
     }
   // receveidData = data;  
