@@ -60,7 +60,7 @@ void loop() {
     }
 
      // **************************** LEFT MOVEMENT *************************************
-     if(receveidData == "left movement") {
+     if(receveidData == "turn left") {
       digitalWrite(IN1, HIGH); // for direct sens
       digitalWrite(IN2, LOW); // for indirect sens
 
@@ -72,7 +72,7 @@ void loop() {
     }
 
     // **************************** RIGHT MOVEMENT *************************************
-     if(receveidData == "right movement") {
+     if(receveidData == "turn right") {
       digitalWrite(IN1, HIGH); // for direct sens
       digitalWrite(IN2, LOW); // for indirect sens
 
@@ -84,7 +84,7 @@ void loop() {
     }
     
     // **************************** BACK MOVEMENT **************************************
-     if(receveidData == "back movement") {
+     if(receveidData == "going back") {
       digitalWrite(IN1, HIGH); // for direct sens
       digitalWrite(IN2, LOW); // for indirect sens
   
@@ -94,6 +94,8 @@ void loop() {
       analogWrite(ENA, 127);  // Convertit le pourcentage en valeur entre 0 et 255
       analogWrite(ENB, 127);
     }
+
+    
     
     // **************************** FOR TONTE MOTOR ************************************
     if(receveidData == "turn on mt") {

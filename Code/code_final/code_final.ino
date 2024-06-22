@@ -176,9 +176,13 @@ void manuel_control() {
       movement_back(); // we call the specific function for this task
     }
 
+    // For changing the robot mode
+    if(receveidData == "automatical mode") {
+       robotMode = true;
+    }
 
-    if(receveidData == "change mode") {
-       robotMode = !robotMode;
+    if(receveidData == "manuel mode") {
+       robotMode = false;
     }
   }
 }
