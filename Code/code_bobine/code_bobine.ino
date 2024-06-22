@@ -1,4 +1,5 @@
-const int limit = A0;
+const int limit = A0; // bobine gauche
+const int limit2 = A2; // bobine droite
 const int lamp = 8;
 
 void setup() {

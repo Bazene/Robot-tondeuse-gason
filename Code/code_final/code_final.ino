@@ -10,7 +10,7 @@
 
 #include <RobojaxBTS7960.h> // librairy for manage motors
 
-//************************************************************ BACK MOTORS **********************************************************************
+//BACK MOTORS 
 // for motor 1
 const int RPWM_1 = 3; // define pin 3 for RPWM pin (output)
 const int R_EN_1 = 27; // define pin 27 for R_EN pin (input)
@@ -41,10 +41,10 @@ RobojaxBTS7960 motor2(R_EN_2,RPWM_2,R_IS_2, L_EN_2,LPWM_2,L_IS_2,debug); //defin
 bool motorRunningArriere = false; // State of motors
 bool robotMode = false; // state of robot mode (Automatique or manuel)
 
-//********************************************************* TONTE MOTOR *********************************************************
+// TONTE MOTOR
 const int mt_tonte = 8;
 
-//****************************************************** ULRASONIC SENSORS ******************************************************
+// ULRASONIC SENSORS
 // for front ultrasonic
 const int ECHO1 = 10;
 const int TRIG1 = 43;
@@ -54,6 +54,12 @@ const int ECHO2 = 13;
 const int TRIG2 = 47;
 
 const int obstacleLimite = 30; // the distance that help us to know if we can stop the robot (30cm because this will help us turn right or left without move back)
+
+// BOBINE
+const int bobine_left = A0 ;
+const int bobine_right = A2 ;
+int value_bobine_left ;
+int value_bobine_right ;
 
 //************************************************* INITIALISE FUNCTION **********************************************************
 void setup() {
@@ -76,6 +82,10 @@ void setup() {
   // Initialize motor tonte
   pinMode(mt_tonte, OUTPUT); 
   analogWrite(mt_tonte, 0);
+
+  // Initialize bobine
+  pinMode(bobine_left, INPUT);
+  pinMode(bobine_right, INPUT);
 
   delay(2); // shot delay for stability
 }
@@ -148,6 +158,8 @@ void movement_front() {
   motor1.rotate(50,CW);
   motor2.rotate(50,CW);
 }
+
+void movement_fo
 
 //**************************************** FUNCTION TO CONTROL THE ROBOT'S MOVEMENT MANUELLY **************************************************
 void manuel_control() {
