@@ -114,8 +114,8 @@ void turn_left() {
   delay(3000);
 
   // we turn left in 3 secondes(This value must be confirmed in test)
-  motor1.rotate(90,CW);
-  motor2.rotate(50,CCW);
+  motor1.rotate(50,CCW);
+  motor2.rotate(90,CW);
   delay(3000);
 
   // then stopp motors
@@ -130,8 +130,8 @@ void turn_right() {
   delay(3000);
 
   // we turn right in 3 secondes (This value must be confirmed in test)
-  motor1.rotate(50,CW);
-  motor2.rotate(90,CCW);
+  motor1.rotate(90,CW);
+  motor2.rotate(50,CCW);
   delay(3000);
 
   // then stopp motors
@@ -158,8 +158,6 @@ void movement_front() {
   motor1.rotate(50,CW);
   motor2.rotate(50,CW);
 }
-
-void movement_fo
 
 //**************************************** FUNCTION TO CONTROL THE ROBOT'S MOVEMENT MANUELLY **************************************************
 void manuel_control() {
@@ -213,12 +211,19 @@ void manuel_control() {
   }
 }
 
-//************************************* FUNCTION TO CONTROL THE ROBOT'S MOVEMENT AUTOMATICALLY ************************************************
+//************************************* FUNCTION TO CONTROL THE ROBOT'S MOVEMENT AUTOMATICALLY ***********************************************
+
 void automatical_control(){
   // Calcul of distance for each sensor
   long distanceFront = getDistance(TRIG1, ECHO1);
   long distanceBack = getDistance(TRIG2, ECHO2);
 
+  // take limits values
+  value_bobine_left = analogRead(bobine_left);
+  value_bobine_right = analogRead(bobine_right);
+
+  //valueRead > 300
+  
   // default state of our motors in 5 secondes
   motor1.stop();
   motor2.stop();
@@ -226,32 +231,35 @@ void automatical_control(){
   
   if (distanceFront != 0 && distanceBack != 0) { // Ensure ultrasonic sensors are working
     if(distanceBack > obstacleLimite) {
+       motor1.stop();
+       motor2.stop();
+       delay(3000); 
+       
       // run motor with 50% speed in CW direction
-      motor1.rotate(50,CCW);
-      motor2.rotate(50,CCW);
+      motor1.rotate(50,CW);
+      motor2.rotate(50,CW);
     } else {
        // we stop motors of 1 seconde
        motor1.stop();
        motor2.stop();
        delay(3000); 
 
-       motor1.rotate(50,CW); // Turn right by running motor1 faster
-       motor2.rotate(90,CCW); 
+       motor1.rotate(90,CW); // Turn right by running motor1 faster
+       motor2.rotate(50,CCW); 
        delay(3000); 
 
        motor1.stop();
        motor2.stop();
        delay(2000); // Stop motors for 1 second
  
-       motor1.rotate(50,CCW); // Resume forward movement
-       motor2.rotate(50,CCW);
+       motor1.rotate(50,CW); // Resume forward movement
+       motor2.rotate(50,CW);
     }
 
     // If obstacle is too close at the back, stop motors for 1 second
     if(distanceFront < obstacleLimite) {
       motor1.stop();
       motor2.stop();
-      delay(1000); // Stop motors for 1 second
     }
   }
 }
