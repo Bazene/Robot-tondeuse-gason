@@ -1,6 +1,6 @@
 // Define broche for ultrasonics sensors
-const int ECHO1 = 10;
-const int TRIG1 = 43;
+const int ECHO1 = 3; // 10
+const int TRIG1 = 2; // 43
 const int ECHO2 = 13;
 const int TRIG2 = 47;
 const int obstacleLimite = 20; // the value that help us to know if we can stop the robot
