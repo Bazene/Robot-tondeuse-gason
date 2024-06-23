@@ -10,6 +10,7 @@ const int ENA = 4;
 const int IN3 = 35;
 const int IN4 = 39;
 const int ENB = 7;
+const int vitesseReceived =  50;
 
 void setup() {
   Serial.begin(9600); //lancer la communication serie à 9600bps
@@ -30,6 +31,16 @@ void setup() {
   pinMode(MotTonte, OUTPUT); analogWrite(MotTonte, 0);
 }
 
+bool isNumeric(String str) {
+  for (byte i = 0; i< str.length(); i++) {
+    if(isDigit(str.charAt(i)) == false) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 void loop() {
   //verifier si les données sont disponibles sur le port série ici du bluetooth
   if (Serial.available() > 0) {
@@ -37,6 +48,21 @@ void loop() {
     String receveidData = Serial.readStringUntil('\n'); // Lire la chaîne jusqu'au retour à la ligne
 
     // ******************** FOR LAUNCHING BACK MOTORS OR FOR BEFORE MOVEMENT ***********************
+    if(isNumeric(receveidData)) {
+      int vitesse = receveidData.toInt();
+      Serial.print("Le nombre reçu est : ");
+      Serial.println(vitesse);
+      
+      digitalWrite(IN1, LOW); // for direct sens
+      digitalWrite(IN2, HIGH); // for indirect sens
+  
+      digitalWrite(IN3, LOW); // for direct sens
+      digitalWrite(IN4, HIGH); // for indirect sens
+
+      analogWrite(ENA, 127);  // Convertit le pourcentage en valeur entre 0 et 255
+      analogWrite(ENB, 127);
+    }
+    
     if(receveidData == "turn on m arriere") {
       digitalWrite(IN1, LOW); // for direct sens
       digitalWrite(IN2, HIGH); // for indirect sens

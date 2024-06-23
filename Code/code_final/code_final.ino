@@ -33,13 +33,18 @@ const int L_EN_2 = 35; // define pin 35 for L_EN pin (input)
 const int CW = 1; //do not change this
 const int CCW = 0; //do not change this
 const int debug = 0; //change to 0 to hide serial monitor debugging infornmation or set to 1 to view
+int robot_speed =  50; // default speed
+const int speed1_turn = 90;
+const int spped2_turn = 50;
+int new_speed = 0;
+bool isChangeSpeed = false;
 
 // instances for our tows motors
 RobojaxBTS7960 motor1(R_EN_1,RPWM_1,R_IS_1, L_EN_1,LPWM_1,L_IS_1,debug); //define motor 1 object (first instance of RobojaxBTS7960)
 RobojaxBTS7960 motor2(R_EN_2,RPWM_2,R_IS_2, L_EN_2,LPWM_2,L_IS_2,debug); //define motor 2 object (second instance of RobojaxBTS7960)
 
 bool last_movement = true; // State of movement true = Droite
-bool robotMode = false; // state of robot mode (Automatique or manuel)
+bool robotMode = false; // state of robot mode (Automatique or manuel) false = manuel
 String receveidData ;
 bool mode_manuel_active = false;
 
@@ -109,6 +114,15 @@ long getDistance(int trigPin, int echoPin) {
 }
 
 //*************************************************************** BASE FUNCTIONS ***************************************************************
+bool isNumeric(String str) {
+  for (byte i = 0; i< str.length(); i++) {
+    if(isDigit(str.charAt(i)) == false) {
+      return false;
+    }
+  }
+  return true;
+}
+
 void turn_left() {
   // we take 1 secondes of break, before moving left
   motor1.stop();
@@ -117,8 +131,8 @@ void turn_left() {
 
   // we turn left in 3 secondes(This value must be confirmed in test)
   last_movement = false;
-  motor1.rotate(40,CCW);
-  motor2.rotate(80,CW);
+  motor1.rotate(spped2_turn,CCW);
+  motor2.rotate(speed1_turn,CW);
   delay(3000);
 
   // then stopp motors
@@ -134,8 +148,8 @@ void turn_right() {
 
   // we turn right in 3 secondes (This value must be confirmed in test)
   last_movement = true;
-  motor1.rotate(80,CW);
-  motor2.rotate(40,CCW);
+  motor1.rotate(speed1_turn,CW);
+  motor2.rotate(spped2_turn,CCW);
   delay(3000);
 
   // then stopp motors
@@ -149,8 +163,8 @@ void movement_back() {
   motor2.stop();
   delay(1000);
   
-  motor1.rotate(50,CCW);
-  motor2.rotate(50,CCW);
+  motor1.rotate(robot_speed,CCW);
+  motor2.rotate(robot_speed,CCW);
 }
 
 void movement_front() {
@@ -159,8 +173,8 @@ void movement_front() {
   motor2.stop();
   delay(1000);
   
-  motor1.rotate(50,CW);
-  motor2.rotate(50,CW);
+  motor1.rotate(robot_speed,CW);
+  motor2.rotate(robot_speed,CW);
 }
 
 //**************************************** FUNCTION TO CONTROL THE ROBOT'S MOVEMENT MANUELLY **************************************************
@@ -176,8 +190,8 @@ void manuel_control(String newData) {
 
     // for back motors
     if(newData == "turn on m arriere") {
-       motor1.rotate(50,CW);
-       motor2.rotate(50,CW); 
+       motor1.rotate(robot_speed,CW);
+       motor2.rotate(robot_speed,CW); 
     }
 
     if(newData == "turn off m arriere") {
@@ -238,8 +252,8 @@ void normal_automatical_movement() {
   value_bobine_right = analogRead(bobine_right);
 
   if((value_bobine_left <= 300) && (value_bobine_right <= 300)) {
-    motor1.rotate(50,CW);
-    motor2.rotate(50,CW);
+    motor1.rotate(robot_speed,CW);
+    motor2.rotate(robot_speed,CW);
   }
   
   if((value_bobine_left > 300) && (value_bobine_right > 300)){
@@ -290,24 +304,43 @@ void automatical_control() {
 void loop() { 
   if(Serial.available() > 0) {
     String data = Serial.readStringUntil('\n');
+    
     if(data == "mode manuel") {
       robotMode = false;
       mode_manuel_active = true;
     }
+    
+    if(isNumeric(data)) {
+       new_speed = data.toInt();
+       isChangeSpeed = true;
+    }
+      
     if(!robotMode) {
-      if(mode_manuel_active) {
+      if(mode_manuel_active) { // this will be execuse once only
          motor1.stop();
          motor2.stop();
          analogWrite(mt_tonte, 0);
          delay(2000);
-         mode_manuel_active = false;
+         mode_manuel_active = false; // allow us to manage transition
+      }
+
+      if(new_speed > 0) {
+        if(isChangeSpeed) {
+           robot_speed = new_speed; 
+           isChangeSpeed = false;
+           new_speed = 0;
+           motor1.stop();
+           motor2.stop();
+           delay(2000);
+        }
       }
       
       manuel_control(data); // the default mode
+    } 
+    
+    if(robotMode) {
+       automatical_control();
     }
-  // receveidData = data;  
-  } else if(robotMode) {
-    automatical_control();
   }
     
   delay(2000); // reproduice the same processusse after 2 seconds 
