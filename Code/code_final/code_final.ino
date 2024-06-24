@@ -224,14 +224,14 @@ void manuel_control(String newData) {
 //************************************* FUNCTION TO CONTROL THE ROBOT'S MOVEMENT AUTOMATICALLY ***********************************************
 void movement_autLeft() {
   if(value_bobine_left > 300) {
-    turn_right();  //we turn right
+    turn_right();  // we turn right
     movement_front(); // then front
   }
 }
 
 void movement_autRight() {
   if(value_bobine_right > 300) {
-    turn_left(); //we turn left
+    turn_left(); // we turn left
     movement_front(); // then front
   }
 }
@@ -246,6 +246,7 @@ void movement_for_front_obstacle() {
   }
 }
 
+// function using only
 void normal_automatical_movement() {
   // take limits values
   value_bobine_left = analogRead(bobine_left);
@@ -256,7 +257,7 @@ void normal_automatical_movement() {
     motor2.rotate(robot_speed,CW);
   }
   
-  if((value_bobine_left > 300) && (value_bobine_right > 300)){
+  if((value_bobine_left > 300) && (value_bobine_right > 300)){ //
     // we turn back in 2 secondes
     movement_back();
     delay(2000);
@@ -337,11 +338,9 @@ void loop() {
       
       manuel_control(data); // the default mode
     } 
-    
-    if(robotMode) {
-       automatical_control();
-    }
   }
-    
-  delay(2000); // reproduice the same processusse after 2 seconds 
+
+  if(robotMode) {
+    automatical_control();
+  }
 }
